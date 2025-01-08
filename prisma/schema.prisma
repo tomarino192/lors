@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  BO
+  BE
+  GUEST
+}
+
+model User {
+  id                   String     @id @default(auto()) @map("_id") @db.ObjectId
+  email                String     @unique
+  password             String
+  role                 String     @default("GUEST")
+  failedLoginAttempts  Int        @default(0)
+  accountLocked        Boolean    @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  businesses           Business[]
+  logs                 Log[]
+}
+
+model Business {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  ownerId  String    @db.ObjectId
+  owner    User      @relation(fields: [ownerId], references: [id])
+  chatbots Chatbot[]
+}
+
+model Chatbot {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  businessId String   @db.ObjectId
+  business   Business @relation(fields: [businessId], references: [id])
+}
+
+model Log {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId  // Add @db.ObjectId here
+  userId      String?  @db.ObjectId  // Add @db.ObjectId here
+  user        User?    @relation(fields: [userId], references: [id])
+  action      String
+  status      String
+  timestamp   DateTime @default(now())
+  details     String?
+}
