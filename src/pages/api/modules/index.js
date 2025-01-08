@@ -13,11 +13,15 @@ export default async function handler(req, res) {
       }
 
       case 'POST': {
-        // Создание нового модуля
+        // Добавление нового модуля (только для администраторов)
         const { name, config } = req.body;
 
         if (!name || !config) {
           return res.status(400).json({ error: 'Missing name or config' });
+        }
+
+        if (req.user.role !== 'ADMIN') {
+          return res.status(403).json({ error: 'Access Denied: Only admins can add modules' });
         }
 
         const newModule = await prisma.module.create({

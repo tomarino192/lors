@@ -46,12 +46,18 @@ export async function middleware(req) {
     // ✅ Проверка доступа для /api/modules
     if (url.startsWith('/api/modules')) {
       if (['POST', 'DELETE'].includes(req.method)) {
-        // Добавление и удаление доступны только администраторам
+        // Добавление и удаление модулей только для администраторов
         if (role !== 'ADMIN') {
           return NextResponse.json({ error: 'Access Denied: Only admins can add or delete modules' }, { status: 403 });
         }
       }
-      // GET и другие методы доступны всем авторизованным пользователям
+
+      if (url.startsWith('/api/modules/attach') && req.method === 'PATCH') {
+        // Прикрепление модулей доступно всем авторизованным пользователям
+        return NextResponse.next();
+      }
+
+      // Остальные методы (GET) доступны всем авторизованным пользователям
     }
 
     return NextResponse.next();

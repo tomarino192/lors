@@ -21,34 +21,14 @@ export default async function handler(req, res) {
         break;
       }
 
-      case 'PUT': {
-        // Обновление модуля
-        const { name, config } = req.body;
-
-        if (!name && !config) {
-          return res.status(400).json({ error: 'Nothing to update' });
-        }
-
-        const updatedModule = await prisma.module.update({
-          where: { id },
-          data: { name, config },
-        });
-
-        res.status(200).json(updatedModule);
-        break;
-      }
-
       case 'DELETE': {
-        // Удаление модуля
-        try {
-          await prisma.module.delete({ where: { id } });
-          res.status(204).end();
-        } catch (deleteError) {
-          if (deleteError.code === 'P2025') {
-            return res.status(404).json({ error: 'Module not found' });
-          }
-          throw deleteError;
+        // Удаление модуля (только для администраторов)
+        if (req.user.role !== 'ADMIN') {
+          return res.status(403).json({ error: 'Access Denied: Only admins can delete modules' });
         }
+
+        await prisma.module.delete({ where: { id } });
+        res.status(204).end();
         break;
       }
 
