@@ -8,9 +8,9 @@ export function middleware(request) {
     return NextResponse.json({ error: 'Access Denied' }, { status: 403 });
   }
 
-  if (url.startsWith('/api/businesses') && role !== 'BO') {
+  if (url.startsWith('/api/business') && !['ADMIN', 'BO'].includes(role)) {
     return NextResponse.json({ error: 'Access Denied' }, { status: 403 });
-  }
+  }  
 
   return NextResponse.next();
 }

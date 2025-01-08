@@ -30,6 +30,8 @@ model Business {
   name     String
   ownerId  String    @db.ObjectId
   owner    User      @relation(fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   chatbots Chatbot[]
 }
 
@@ -48,4 +50,12 @@ model Log {
   status      String
   timestamp   DateTime @default(now())
   details     String?
+}
+
+model Module {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  config    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

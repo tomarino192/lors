@@ -25,12 +25,33 @@ export async function middleware(req) {
     const { role } = payload;
     const url = req.nextUrl.pathname;
 
-    if (url.startsWith('/api/admin') && role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Access Denied' }, { status: 403 });
+    if (!role) {
+      return NextResponse.json({ error: 'Unauthorized - Role not found in token' }, { status: 401 });
     }
 
-    if (url.startsWith('/api/business') && !['ADMIN', 'BO'].includes(role)) {
-      return NextResponse.json({ error: 'Access Denied' }, { status: 403 });
+    // ✅ Проверка доступа для /api/admin
+    if (url.startsWith('/api/admin')) {
+      if (role !== 'ADMIN') {
+        return NextResponse.json({ error: 'Access Denied: Admins only' }, { status: 403 });
+      }
+    }
+
+    // ✅ Проверка доступа для /api/business
+    if (url.startsWith('/api/business')) {
+      if (!['ADMIN', 'BO'].includes(role)) {
+        return NextResponse.json({ error: 'Access Denied: Admins or BO only' }, { status: 403 });
+      }
+    }
+
+    // ✅ Проверка доступа для /api/modules
+    if (url.startsWith('/api/modules')) {
+      if (['POST', 'DELETE'].includes(req.method)) {
+        // Добавление и удаление доступны только администраторам
+        if (role !== 'ADMIN') {
+          return NextResponse.json({ error: 'Access Denied: Only admins can add or delete modules' }, { status: 403 });
+        }
+      }
+      // GET и другие методы доступны всем авторизованным пользователям
     }
 
     return NextResponse.next();
@@ -40,6 +61,11 @@ export async function middleware(req) {
   }
 }
 
+// ✅ Конфигурация маршрутов
 export const config = {
-  matcher: ['/api/admin/:path*', '/api/business/:path*'],
+  matcher: [
+    '/api/admin/:path*',
+    '/api/business/:path*',
+    '/api/modules/:path*'
+  ],
 };

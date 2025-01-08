@@ -2,9 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/auth/signin": "pages/auth/signin.js",
-  "/dashboard": "pages/dashboard.js",
-  "/api/users/[id]": "pages/api/users/[id].js",
-  "/api/users": "pages/api/users.js",
-  "/api/auth/signin": "pages/api/auth/signin.js"
+  "/api/modules": "pages/api/modules.js"
 }
