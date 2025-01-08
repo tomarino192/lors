@@ -5,6 +5,7 @@ module.exports = {
     './src/pages/**/*.{js,jsx}',
     './src/components/**/*.{js,jsx}',
     './src/app/**/*.{js,jsx}',
+	 '.src/pages/auth/**/*.{js,jsx}',
   ],
   prefix: "",
   theme: {

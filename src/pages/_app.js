@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { isAuthenticated, getUserRole } from '@/utils/auth';
-import '@/styles/globals.css';
+import '../styles/globals.css';
 
 // Маршруты, доступные без аутентификации
 const publicRoutes = ['/auth/signin', '/auth/signup'];
