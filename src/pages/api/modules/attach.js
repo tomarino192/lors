@@ -6,25 +6,41 @@ export default async function handler(req, res) {
   try {
     switch (req.method) {
       case 'PATCH': {
-        const { moduleId, botIds } = req.body;
+        const { moduleId, chatbotIds } = req.body;
 
-        if (!moduleId || !botIds || !Array.isArray(botIds)) {
-          return res.status(400).json({ error: 'moduleId and botIds (array) are required' });
+        // Валидация входных данных
+        if (!moduleId || !chatbotIds || !Array.isArray(chatbotIds)) {
+          return res.status(400).json({ error: 'moduleId and chatbotIds (array) are required' });
         }
 
-        // Проверка, существует ли модуль
+        // Проверка существования модуля
         const module = await prisma.module.findUnique({ where: { id: moduleId } });
         if (!module) {
           return res.status(404).json({ error: 'Module not found' });
         }
 
-        // Прикрепление модуля к чат-ботам
-        const updatedBots = await prisma.bot.updateMany({
-          where: { id: { in: botIds } },
-          data: { modules: { connect: { id: moduleId } } },
+        // Проверка существования чат-ботов
+        const validChatbots = await prisma.chatbot.findMany({
+          where: {
+            id: { in: chatbotIds }
+          }
         });
 
-        res.status(200).json({ message: 'Module attached to bots successfully', updatedBots });
+        if (validChatbots.length !== chatbotIds.length) {
+          return res.status(400).json({ error: 'One or more Chatbot IDs are invalid' });
+        }
+
+        // Прикрепление модуля к чат-ботам
+        await prisma.module.update({
+          where: { id: moduleId },
+          data: {
+            chatbots: {
+              connect: chatbotIds.map((id) => ({ id }))
+            }
+          }
+        });
+
+        res.status(200).json({ message: 'Module successfully attached to chatbots' });
         break;
       }
 
